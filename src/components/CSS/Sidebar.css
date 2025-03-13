@@ -1,0 +1,5 @@
+.nav-item.active .nav-link {
+    background-color: #07BEAA;   /* Highlight color */
+    border-radius: 8px;
+    font-weight: bold;
+}
