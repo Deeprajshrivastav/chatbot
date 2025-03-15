@@ -23,8 +23,8 @@ const Sidebar = () => {
                         <BotIcon className="me-2 fs-2" /> My Bots
                     </a>
                 </li>
-                <li className={`nav-item mb-2 ${isActive('#') ? 'active' : ''}`}>
-                    <a href="#" className="nav-link text-white">
+                <li className={`nav-item mb-2 ${isActive('/brodcast') ? 'active' : ''}`}>
+                    <a href="/brodcast" className="nav-link text-white">
                         <BroadcastIcon className="me-2 fs-2" /> Broadcast
                     </a>
                 </li>
