@@ -47,3 +47,34 @@ p {
     font-size: 16px;
     font-family: 'Nunito Sans';
 }
+
+
+.custom-dropdown {
+    position: relative;
+  }
+  
+  .dropdown-menu {
+    position: absolute;
+    background: white;
+    border: 1px solid #ccc;
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    width: 100%;
+  }
+  
+  .dropdown-item {
+    padding: 8px 12px;
+    transition: background 0.2s;
+  }
+  
+  .dropdown-item:hover {
+    background: #f0f0f0;
+  }
+  
+  .selected {
+    background: #e0e0e0; /* Highlight selected items */
+  }
+
+
+  
