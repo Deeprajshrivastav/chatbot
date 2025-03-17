@@ -17,6 +17,7 @@ import {
 import axios from "axios";
 import "./CSS/brodcast.css";
 import CloseIcon from '@mui/icons-material/Close';
+import Modal from 'reactstrap/lib/Modal';
 
 const BroadcastMessage = () => {
   const [file, setFile] = useState(null);
@@ -26,8 +27,8 @@ const BroadcastMessage = () => {
   const [viewContactsOpen, setViewContactsOpen] = useState(false);
   const fileInputRef = useRef(null);
   const [message, setMessage] = useState("");
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
 
-  // When contacts are loaded, set all to be excluded by default
   useEffect(() => {
     if (contacts.length > 0) {
       setExcludedContacts([...contacts]);
@@ -73,7 +74,6 @@ const BroadcastMessage = () => {
   };
 
   const handleExcludeToggle = (contact, e) => {
-    // Prevent dropdown from closing when clicking checkboxes
     if (e) e.stopPropagation();
     
     if (excludedContacts.includes(contact)) {
@@ -101,7 +101,6 @@ const BroadcastMessage = () => {
     setViewContactsOpen(!viewContactsOpen);
   };
 
-  // Get display text for dropdown toggle
   const getDropdownText = () => {
     if (contacts.length === 0) return "No contacts available";
     if (excludedContacts.length === contacts.length) return "All contacts selected";
@@ -120,10 +119,26 @@ const BroadcastMessage = () => {
       const response = await axios.post("https://5d47-2409-40c2-116c-1c96-7571-230a-e579-a1da.ngrok-free.app/broadcast", payload);
       console.log("Broadcast successful:", response.data);
       alert("Message sent successfully!");
+      setIsPopupOpen(true);
+      setMessage("");
+      setExcludedContacts([]);
+      setFile(null);
+      setContacts([]);
     } catch (error) {
       console.error("Error sending message:", error);
       alert("Error sending message. Please try again.");
     }
+  };
+
+  const togglePopup = () => {
+    setIsPopupOpen(!isPopupOpen);
+  };
+
+  const handleReset = () => {
+    setMessage("");
+    setExcludedContacts([]);
+    setFile(null);
+    setContacts([]);
   };
 
   return (
@@ -250,7 +265,7 @@ const BroadcastMessage = () => {
           </Row>
           <Row>
             <div className="d-flex mt-3">
-              <Button color="secondary" className="me-2">
+              <Button color="secondary" className="me-2" onClick={handleReset}>
                 Reset
               </Button>
               <Button className="submit-btns mx-4" onClick={handlePublish}>Publish</Button>
@@ -258,6 +273,18 @@ const BroadcastMessage = () => {
           </Row>
         </CardBody>
       </Card>
+
+      <Modal isOpen={isPopupOpen} toggle={togglePopup} className="popup-modal">
+        <div className="modal-header">
+          <h5 className="modal-title">Success</h5>
+          <button type="button" className="close" onClick={togglePopup}>
+            <span>&times;</span>
+          </button>
+        </div>
+        <div className="modal-body">
+          <iframe src="https://5d47-2409-40c2-116c-1c96-7571-230a-e579-a1da.ngrok-free.app" style={{ width: '100%', height: '400px', border: 'none' }} title="Google"></iframe>
+        </div>
+      </Modal>
     </div>
   );
 };
