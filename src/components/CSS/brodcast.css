@@ -77,4 +77,7 @@ p {
   }
 
 
-  
+  .input-field{
+    background-color: #EAEAEA;
+    border: none;
+  }
