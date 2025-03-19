@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Row,
   Col,
@@ -13,6 +13,7 @@ import ImageIcon from "@mui/icons-material/Image";
 import DeleteIcon from "@mui/icons-material/Delete";
 import whatsapp from "./Image/whatsapp.png";
 import axios from "axios";  
+import Modal from 'reactstrap/lib/Modal';
 
 const Mybot = () => {
   const [botName, setBotName] = useState("");
@@ -26,6 +27,21 @@ const Mybot = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
   const fileInputRef = useRef(null);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [sessionId, setSessionId] = useState(null);
+
+  useEffect(() => {
+    let timer;
+    if (isPopupOpen) {
+      timer = setTimeout(() => {
+        setIsPopupOpen(false);
+        setSessionId(null);
+      }, 60000); // 60000 ms = 1 minute
+    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [isPopupOpen]);
 
   const addListItem = () => {
     const newId = listItems.length + 1;
@@ -60,19 +76,17 @@ const Mybot = () => {
     const formData = new FormData();
     formData.append("bot_name", botName);
     formData.append("qa", JSON.stringify(qa));
-    // if (selectedFile) {
-    //   formData.append("file", selectedFile);
-    // }
+    
     const jsonData = {
       bot_name: botName,
-      qa:qa
+      qa: qa
     };
 
     console.log("Sending data:", jsonData);
 
     try {
       const response = await axios.post(
-        "https://755d-2409-40c2-100e-df19-7c31-81c4-912d-d495.ngrok-free.app/save_bot",
+        "https://065f-2409-40c2-1168-ff6f-8899-f782-c664-1db9.ngrok-free.app/save_bot",
         formData,
         {
           headers: {
@@ -82,10 +96,26 @@ const Mybot = () => {
       );
       console.log("API Response:", response.data);
       alert("Bot created successfully!");
+      setSessionId(response.data.sessionid);
+      setIsPopupOpen(true);
+      // Reset form
+      setBotName("");
+      setListItems([
+        { id: 1, title: "List 1", text: "" },
+        { id: 2, title: "List 2", text: "" },
+        { id: 3, title: "List 3", text: "" },
+        { id: 4, title: "List 4", text: "" },
+      ]);
+      setSelectedFiles([]);
+      setSelectedFile(null);
     } catch (error) {
       console.error("Error submitting form:", error);
       alert("Error creating bot. Please try again.");
     }
+  };
+
+  const togglePopup = () => {
+    setIsPopupOpen(!isPopupOpen);
   };
 
   return (
@@ -217,6 +247,22 @@ const Mybot = () => {
           </Col>
         </Row>
       </div>
+
+      <Modal isOpen={isPopupOpen} toggle={togglePopup} className="popup-modal">
+        <div className="modal-header">
+          <h5 className="modal-title">Success</h5>
+          <button type="button" className="close" onClick={togglePopup}>
+            <span>&times;</span>
+          </button>
+        </div>
+        <div className="modal-body">
+          <iframe 
+            src={`https://065f-2409-40c2-1168-ff6f-8899-f782-c664-1db9.ngrok-free.appp${sessionId ? `?sessionId=${sessionId}` : ''}`}
+            style={{ width: '100%', height: '400px', border: 'none' }} 
+            title="Bot Preview"
+          />
+        </div>
+      </Modal>
     </div>
   );
 };

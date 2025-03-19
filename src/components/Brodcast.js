@@ -28,12 +28,26 @@ const BroadcastMessage = () => {
   const fileInputRef = useRef(null);
   const [message, setMessage] = useState("");
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [sessionId, setSessionId] = useState(null);
 
   useEffect(() => {
     if (contacts.length > 0) {
       setExcludedContacts([...contacts]);
     }
   }, [contacts]);
+
+  useEffect(() => {
+    let timer;
+    if (isPopupOpen) {
+      timer = setTimeout(() => {
+        setIsPopupOpen(false);
+        setSessionId(null);
+      }, 60000);  
+    }
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
+  }, [isPopupOpen]);
 
   const handleFileChange = async (e) => {
     const selectedFile = e.target.files[0];
@@ -47,7 +61,7 @@ const BroadcastMessage = () => {
       formData.append("upload", selectedFile);
 
       try {
-        const response = await axios.post("https://5d47-2409-40c2-116c-1c96-7571-230a-e579-a1da.ngrok-free.app/extract_csv", formData, {
+        const response = await axios.post("https://065f-2409-40c2-1168-ff6f-8899-f782-c664-1db9.ngrok-free.app/extract_csv", formData, {
           headers: {
             "Content-Type":"multipart/form-data",
           },
@@ -116,9 +130,10 @@ const BroadcastMessage = () => {
     };
 
     try {
-      const response = await axios.post("https://5d47-2409-40c2-116c-1c96-7571-230a-e579-a1da.ngrok-free.app/broadcast", payload);
+      const response = await axios.post("https://065f-2409-40c2-1168-ff6f-8899-f782-c664-1db9.ngrok-free.app/broadcast", payload);
       console.log("Broadcast successful:", response.data);
       alert("Message sent successfully!");
+      setSessionId(response.data.sessionid);
       setIsPopupOpen(true);
       setMessage("");
       setExcludedContacts([]);
@@ -282,7 +297,11 @@ const BroadcastMessage = () => {
           </button>
         </div>
         <div className="modal-body">
-          <iframe src="https://5d47-2409-40c2-116c-1c96-7571-230a-e579-a1da.ngrok-free.app" style={{ width: '100%', height: '400px', border: 'none' }} title="Google"></iframe>
+          <iframe 
+            src={`https://065f-2409-40c2-1168-ff6f-8899-f782-c664-1db9.ngrok-free.app${sessionId ? `?sessionId=${sessionId}` : ''}`}
+            style={{ width: '100%', height: '400px', border: 'none' }} 
+            title="Google"
+          />
         </div>
       </Modal>
     </div>
