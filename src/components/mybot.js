@@ -36,7 +36,7 @@ const Mybot = () => {
       timer = setTimeout(() => {
         setIsPopupOpen(false);
         setSessionId(null);
-      }, 60000); // 60000 ms = 1 minute
+      }, 60000); 
     }
     return () => {
       if (timer) clearTimeout(timer);
@@ -76,21 +76,22 @@ const Mybot = () => {
     const formData = new FormData();
     formData.append("bot_name", botName);
     formData.append("qa", JSON.stringify(qa));
-    
+    if (selectedFile){
+      formData.append("file",selectedFile);
+    }
     const jsonData = {
       bot_name: botName,
-      qa: qa
+      qa: qa,
+      file: selectedFile ? selectedFile.name : null
     };
 
     console.log("Sending data:", jsonData);
 
     try {
-      const response = await axios.post(
-        "https://065f-2409-40c2-1168-ff6f-8899-f782-c664-1db9.ngrok-free.app/save_bot",
-        formData,
+      const response = await axios.post("http://localhost:8080/save_bot", formData,
         {
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "multipart/form-data",
           },
         }
       );
@@ -98,7 +99,7 @@ const Mybot = () => {
       alert("Bot created successfully!");
       setSessionId(response.data.sessionid);
       setIsPopupOpen(true);
-      // Reset form
+      
       setBotName("");
       setListItems([
         { id: 1, title: "List 1", text: "" },
