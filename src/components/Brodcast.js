@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import {
   Button,
-  Form,
+
   FormGroup,
   Label,
   Input,
@@ -29,7 +29,7 @@ const BroadcastMessage = () => {
   const [message, setMessage] = useState("");
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [sessionId, setSessionId] = useState(null);
-
+  const [isQueuePopupOpen, setIsQueuePopupOpen] = useState(false);
   useEffect(() => {
     if (contacts.length > 0) {
       setExcludedContacts([...contacts]);
@@ -37,17 +37,25 @@ const BroadcastMessage = () => {
   }, [contacts]);
 
   useEffect(() => {
-    let timer;
+    let iframeTimer, queueTimer;
+  
     if (isPopupOpen) {
-      timer = setTimeout(() => {
-        setIsPopupOpen(false);
-        setSessionId(null);
-      }, 60000);  
+      iframeTimer = setTimeout(() => {
+        setIsPopupOpen(false);  
+        setIsQueuePopupOpen(true); 
+  
+        queueTimer = setTimeout(() => {
+          setIsQueuePopupOpen(false);  
+        }, 3000); 
+      }, 30000);  
     }
+  
     return () => {
-      if (timer) clearTimeout(timer);
+      if (iframeTimer) clearTimeout(iframeTimer);
+      if (queueTimer) clearTimeout(queueTimer);
     };
   }, [isPopupOpen]);
+  
 
   const handleFileChange = async (e) => {
     const selectedFile = e.target.files[0];
@@ -61,7 +69,7 @@ const BroadcastMessage = () => {
       formData.append("upload", selectedFile);
 
       try {
-        const response = await axios.post("https://065f-2409-40c2-1168-ff6f-8899-f782-c664-1db9.ngrok-free.app/extract_csv", formData, {
+        const response = await axios.post("https://33ab-2409-40c2-105f-edc1-1484-5352-fc46-590b.ngrok-free.app/extract_csv", formData, {
           headers: {
             "Content-Type":"multipart/form-data",
           },
@@ -130,9 +138,9 @@ const BroadcastMessage = () => {
     };
 
     try {
-      const response = await axios.post("https://065f-2409-40c2-1168-ff6f-8899-f782-c664-1db9.ngrok-free.app/broadcast", payload);
+      const response = await axios.post("https://33ab-2409-40c2-105f-edc1-1484-5352-fc46-590b.ngrok-free.app/broadcast", payload);
       console.log("Broadcast successful:", response.data);
-      alert("Message sent successfully!");
+      
       setSessionId(response.data.sessionid);
       setIsPopupOpen(true);
       setMessage("");
@@ -298,12 +306,24 @@ const BroadcastMessage = () => {
         </div>
         <div className="modal-body">
           <iframe 
-            src={`https://065f-2409-40c2-1168-ff6f-8899-f782-c664-1db9.ngrok-free.app${sessionId ? `?sessionId=${sessionId}` : ''}`}
+            src={`https://33ab-2409-40c2-105f-edc1-1484-5352-fc46-590b.ngrok-free.app${sessionId ? `?sessionId=${sessionId}` : ''}`}
             style={{ width: '100%', height: '400px', border: 'none' }} 
             title="Google"
           />
         </div>
       </Modal>
+      <Modal isOpen={isQueuePopupOpen} toggle={() => setIsQueuePopupOpen(false)} className="popup-modal">
+  <div className="modal-header">
+    
+    <button type="button" className="close" onClick={() => setIsQueuePopupOpen(false)}>
+      <span>&times;</span>
+    </button>
+  </div>
+  <div className="modal-body">
+    <p>Your message is in queue.</p>
+  </div>
+</Modal>
+
     </div>
   );
 };

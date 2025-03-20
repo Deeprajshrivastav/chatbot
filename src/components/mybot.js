@@ -18,10 +18,10 @@ import Modal from 'reactstrap/lib/Modal';
 const Mybot = () => {
   const [botName, setBotName] = useState("");
   const [listItems, setListItems] = useState([
-    { id: 1, title: "List 1", text: "" },
-    { id: 2, title: "List 2", text: "" },
-    { id: 3, title: "List 3", text: "" },
-    { id: 4, title: "List 4", text: "" },
+    { id: 1, title: "Question 1", text: "" },
+    { id: 2, title: "Question 2", text: "" },
+    { id: 3, title: "Question 3", text: "" },
+    { id: 4, title: "Question 4", text: "" },
   ]);
 
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -29,20 +29,28 @@ const Mybot = () => {
   const fileInputRef = useRef(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [sessionId, setSessionId] = useState(null);
+  const [isLaunchPopupOpen, setIsLaunchPopupOpen] = useState(false);
 
   useEffect(() => {
-    let timer;
+    let iframeTimer, launchTimer;
+  
     if (isPopupOpen) {
-      timer = setTimeout(() => {
-        setIsPopupOpen(false);
-        setSessionId(null);
-      }, 60000); 
+      iframeTimer = setTimeout(() => {
+        setIsPopupOpen(false);  
+        setIsLaunchPopupOpen(true);   
+  
+        launchTimer = setTimeout(() => {
+          setIsLaunchPopupOpen(false);   
+        }, 3000);  
+      }, 30000);  
     }
+  
     return () => {
-      if (timer) clearTimeout(timer);
+      if (iframeTimer) clearTimeout(iframeTimer);
+      if (launchTimer) clearTimeout(launchTimer);
     };
   }, [isPopupOpen]);
-
+  
   const addListItem = () => {
     const newId = listItems.length + 1;
     setListItems([
@@ -88,7 +96,7 @@ const Mybot = () => {
     console.log("Sending data:", jsonData);
 
     try {
-      const response = await axios.post("http://localhost:8080/save_bot", formData,
+      const response = await axios.post("https://33ab-2409-40c2-105f-edc1-1484-5352-fc46-590b.ngrok-free.app/save_bot", formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
@@ -102,10 +110,10 @@ const Mybot = () => {
       
       setBotName("");
       setListItems([
-        { id: 1, title: "List 1", text: "" },
-        { id: 2, title: "List 2", text: "" },
-        { id: 3, title: "List 3", text: "" },
-        { id: 4, title: "List 4", text: "" },
+        { id: 1, title: "Question 1", text: "" },
+        { id: 2, title: "Question 2", text: "" },
+        { id: 3, title: "Question 3", text: "" },
+        { id: 4, title: "Question 4", text: "" },
       ]);
       setSelectedFiles([]);
       setSelectedFile(null);
@@ -258,12 +266,24 @@ const Mybot = () => {
         </div>
         <div className="modal-body">
           <iframe 
-            src={`https://065f-2409-40c2-1168-ff6f-8899-f782-c664-1db9.ngrok-free.appp${sessionId ? `?sessionId=${sessionId}` : ''}`}
+            src={`https://33ab-2409-40c2-105f-edc1-1484-5352-fc46-590b.ngrok-free.app${sessionId ? `?sessionId=${sessionId}` : ''}`}
             style={{ width: '100%', height: '400px', border: 'none' }} 
             title="Bot Preview"
           />
         </div>
       </Modal>
+      <Modal isOpen={isLaunchPopupOpen} toggle={() => setIsLaunchPopupOpen(false)} className="popup-modal">
+  <div className="modal-header">
+    
+    <button type="button" className="close" onClick={() => setIsLaunchPopupOpen(false)}>
+      <span>&times;</span>
+    </button>
+  </div>
+  <div className="modal-body">
+    <p>Bot will launch shortly.</p>
+  </div>
+</Modal>
+
     </div>
   );
 };
